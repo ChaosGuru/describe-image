@@ -6,6 +6,8 @@
 - [ ] flask backend api
 - [ ] room creating (web sockets)
 - [ ] chat
+- [ ] balancer for nodes
+- [ ] redis for cache
 - [ ] canva for drawing
 - [ ] random image finder
 - [ ] vue frontend

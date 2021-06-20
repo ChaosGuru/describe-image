@@ -1,8 +1,6 @@
 from flask import Flask
 
 app = Flask(__name__)
+# app.config['SERVER_NAME'] = 'mysite.loc'
 
 
-@app.route('/')
-def test_if_works():
-    return "Hello, World!"
