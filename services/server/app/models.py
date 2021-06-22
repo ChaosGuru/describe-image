@@ -1,4 +1,5 @@
 from .db import Base
+from sqlalchemy.orm import relationship
 
 
 class Player(Base):

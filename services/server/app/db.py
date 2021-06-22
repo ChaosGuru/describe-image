@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 engine = create_engine('postgresql+pg8000://king:6530@localhost:5432/engl_games', 

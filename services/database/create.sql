@@ -18,7 +18,7 @@ CREATE TABLE game (
     duration interval not null default '5 minutes',
     template varchar(20) not null default 'basic',
     image_url text,
-    narrator_id integer references player(id)
+    narrator_id integer unique references player(id)
 );
 
 CREATE TABLE game_players (
