@@ -7,8 +7,20 @@ CREATE DATABASE engl_games;
 
 CREATE TABLE player (
     id serial primary key,
-    nick varchar(20) not null default 'Player'
-    -- conn text not null,
+    nick varchar(20) not null default 'Player',
+    last_activity date not null default now()
+);
+
+CREATE TABLE room (
+    id serial primary key,
+    code uuid not null,
+    owner_id integer unique references player(id) on delete cascade
+);
+
+CREATE TABLE room_players (
+    id serial primary key,
+    player_id integer unique references player(id) on delete cascade,
+    room_id integer references room(id) on delete cascade
 );
 
 CREATE TABLE game (
@@ -18,13 +30,7 @@ CREATE TABLE game (
     duration interval not null default '5 minutes',
     template varchar(20) not null default 'basic',
     image_url text,
-    narrator_id integer unique references player(id)
-);
-
-CREATE TABLE game_players (
-    id serial primary key,
-    player_id integer references player(id),
-    game_id integer references game(id)
+    room_id integer unique references room(id) on delete cascade
 );
 
 -- CREATE TABLE gallary (

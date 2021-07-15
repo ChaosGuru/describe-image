@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template_string
+from flask import Blueprint, render_template_string, jsonify
 
-from .models import Player, Game, GamePlayers
+from .models import Player, Game, RoomPlayers, Room
 from .db import db_session
 
 
@@ -8,94 +8,28 @@ api_bp = Blueprint('api', __name__, subdomain="api")
 
 
 @api_bp.route('/test')
-def test_bp():
-    # all players
-    players = db_session.query(Player.id, Player.nick)
+def test_db():
+    players = db_session.query(
+        Player.id, 
+        Player.nick, 
+        Player.last_activity
+    ).all()
 
-    # all games
+    rooms = db_session.query(
+        Room.id,
+        Room.code,
+        Room.owner_id,
+        Player.nick
+    ).join(Player).all()
+
     games = db_session.query(
         Game.id,
         Game.creation_time,
-        Game.theme,
-        Game.duration,
         Game.template,
-        Game.image_url,
-        Player.id,
-        Player.nick).join(Player)
+        Room.code
+    ).join(Room).all()
 
-    # all players and their games (join)
-    game_players = db_session.query(
-        GamePlayers.id,
-        Player.id, 
-        Player.nick,
-        Game.id,
-        Game.creation_time).select_from(GamePlayers).join(Player, Game)
-    
-    return render_template_string("""
-        <h1>players:</h1>
-        <table>
-            <thead>
-                <th>id</th>
-                <th>nick</th>
-            </thead>
-            <tbody>
-            {% for pl in players %}
-                <tr>
-                    <td>{{ pl[0] }}</td>
-                    <td>{{ pl[1] }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <br>
-        <table>
-            <thead>
-                <th>id</th>
-                <th>timestamp</th>
-                <th>theme</th>
-                <th>duration</th>
-                <th>template</th>
-                <th>image</th>
-                <th>player id</th>
-                <th>player</th>
-            </thead>
-            <tbody>
-            {% for gm in games %}
-                <tr>
-                    <td>{{ gm[0] }}</td>
-                    <td>{{ gm[1] }}</td>
-                    <td>{{ gm[2] }}</td>
-                    <td>{{ gm[3] }}</td>
-                    <td>{{ gm[4] }}</td>
-                    <td>{{ gm[5] }}</td>
-                    <td>{{ gm[6] }}</td>
-                    <td>{{ gm[7] }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <br>
-        <table>
-            <thead>
-                <th>id</th>
-                <th>player id</th>
-                <th>player</th>
-                <th>game id</th>
-                <th>game creation</th>
-            </thead>
-            <tbody>
-            {% for pl in game_players %}
-                <tr>
-                    <td>{{ pl[0] }}</td>
-                    <td>{{ pl[1] }}</td>
-                    <td>{{ pl[2] }}</td>
-                    <td>{{ pl[3] }}</td>
-                    <td>{{ pl[4] }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    """, players=players, games=games, game_players=game_players)
+    return "{}{}{}".format(players, rooms, games)
 
 
 # get player
