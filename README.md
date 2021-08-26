@@ -1,1 +1,0 @@
-# Game for learning english by describing photos

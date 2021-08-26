@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeroChat (demo)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1 id="title">ZeroChat (demo)</h1>
+    <div id="change-nick" class="center-div">
+      <form action="/set-nick" method="POST" onsubmit="changeNick(event);">
+        <label for="nick-inp">Nick</label>
+        <input type="text" name="nick" id="nick-inp" value="">
+        <input type="submit" value="Change nick">
+      </form>
+    </div>
+  </header>
+  <main>
+    <div id="chat">
+
+    </div>
+  </main>
+  <footer>
+    <div id="input-msg" class="center-div">
+      <form onsubmit="sendMsg(event);">
+        <span id="nick"></span>
+        <input type="text" id="msg">
+        <button>SEND</button>
+      </form>
+    </div>
+  </footer>
+  <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+  <script>
+    const socket = io("/chat");
+
+    function disNick() {
+      const re = '/"/';
+      const nick = document.cookie
+                    .split('; ')
+                    .find(c => c.startsWith('nick='))
+                    .split('=')[1]
+                    .replace(/^"(.+)"$/, '$1');
+      
+      document.getElementById('nick').innerHTML = nick;
+    }
+    
+    async function changeNick(event) {
+      event.preventDefault();
+      
+      const form = event.currentTarget;
+      const url = form.action;
+      const nick = document.getElementById("nick");
+      
+      try {
+        const data = {
+          'nick': (new FormData(form)).get('nick'),
+        };
+        const content = JSON.stringify(data);
+
+        const options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: content,
+        };
+        
+        const response = await fetch(url, options);
+        if (response.ok) {
+          nick.innerHTML = data['nick'];
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function disMsg(msg) {
+      // const msg = document.createElement("p");
+      
+      // document.getElementById("chat").appendChild(msg);
+      document.getElementById("chat").innerHTML += `<p><b>${msg["nick"]}:</b> ${msg["text"]}</p>`;
+    }
+
+    function sendMsg(event) { 
+      event.preventDefault();
+
+      inp = document.getElementById("msg");
+      socket.emit("send-msg", inp.value);
+      inp.value = '';
+    }
+
+    socket.on("receive-msg", (msg) => disMsg(msg));
+
+    window.addEventListener('DOMContentLoaded', disNick());
+  </script>
+</body>
+</html>
